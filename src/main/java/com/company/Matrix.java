@@ -11,8 +11,8 @@ import java.util.*;
 public class Matrix {
     private final int length;
     private final int width;
-    private final List<ArrayList<Sell>> matrix;
-    private Set<Sell> disabledSells = new HashSet<>();
+    private final List<ArrayList<Cell>> matrix;
+    private Set<Cell> disabledCells = new HashSet<>();
 
 
     public Matrix(int x, int y) {
@@ -21,16 +21,16 @@ public class Matrix {
 
         matrix = new ArrayList<>();
         for (int i = 0; i < length; ++i) {
-            List<Sell> column = new ArrayList<>();
+            List<Cell> column = new ArrayList<>();
             for (int j = 0; j < width; ++j) {
-                column.add(new Sell(Pair.of(i, j)));
+                column.add(new Cell(Pair.of(i, j)));
             }
-            matrix.add((ArrayList<Sell>) column);
+            matrix.add((ArrayList<Cell>) column);
         }
     }
 
-    public void fillDisabledSells(@NotNull Set<Sell> sells) {
-        disabledSells = sells;
+    public void fillDisabledCells(@NotNull Set<Cell> cells) {
+        disabledCells = cells;
     }
 
     public int getLength() {
@@ -42,132 +42,132 @@ public class Matrix {
     }
 
     public void showShortestPath(Pair<Integer, Integer> source, Pair<Integer, Integer> destination) {
-        Set<Sell> start = new HashSet<>();
-        start.add(new Sell().of(source.getLeft(), source.getRight()));
+        Set<Cell> start = new HashSet<>();
+        start.add(new Cell().of(source.getLeft(), source.getRight()));
 
-        Set<Sell> shortestPath = getShortestPathInSells(-1, new HashSet<Sell>(), start, destination, source);
+        Set<Cell> shortestPath = getShortestPathInCells(-1, new HashSet<Cell>(), start, destination, source);
 
-        TreeSet<Sell> sortedSells = new TreeSet<>(new Comparator<Sell>() {
+        TreeSet<Cell> sortedCells = new TreeSet<>(new Comparator<Cell>() {
             @Override
-            public int compare(Sell o1, Sell o2) {
+            public int compare(Cell o1, Cell o2) {
                 return o1.distanceFromSource - o2.distanceFromSource;
             }
         });
-        sortedSells.addAll(shortestPath);
+        sortedCells.addAll(shortestPath);
 
-        for(Sell sell: sortedSells){
-            System.out.println(sell);
+        for(Cell cell: sortedCells){
+            System.out.println(cell);
         }
     }
 
-    private Set<Sell> getShortestPathInSells(int step , HashSet<Sell> path, Set<Sell> sells, Pair<Integer, Integer> destination, Pair<Integer,Integer> source) {
+    private Set<Cell> getShortestPathInCells(int step , HashSet<Cell> path, Set<Cell> cells, Pair<Integer, Integer> destination, Pair<Integer,Integer> source) {
         ++step;
-        Set<Sell> neighbor = new HashSet<>();
-        Sell sellOperation = new Sell();
-        Sell destinationSell = sellOperation.of(destination.getLeft(),destination.getRight());
+        Set<Cell> neighbor = new HashSet<>();
+        Cell cellOperation = new Cell();
+        Cell destinationCell = cellOperation.of(destination.getLeft(),destination.getRight());
 
-        resolveDistancesOfSells(step,sells);
+        resolveDistancesOfCells(step,cells);
 
 
-        for (Sell sell : sells) {
-            if (canBeTheNextStepOfPath(sell.right(),source)){
-                Sell right = sell.right();
-                if(right.equals(destinationSell)){
-                    resolveSellTrace(sell, path, sellOperation.of(source.getLeft(), source.getRight()));
+        for (Cell cell : cells) {
+            if (canBeTheNextStepOfPath(cell.right(),source)){
+                Cell right = cell.right();
+                if(right.equals(destinationCell)){
+                    resolveCellTrace(cell, path, cellOperation.of(source.getLeft(), source.getRight()));
                    return path;
                 }
                 neighbor.add(right);
             }
-            if (canBeTheNextStepOfPath(sell.up(),source)){
-                Sell up = sell.up();
-                if(up.equals(destinationSell)){
-                    resolveSellTrace(sell, path, sellOperation.of(source.getLeft(), source.getRight()));
+            if (canBeTheNextStepOfPath(cell.up(),source)){
+                Cell up = cell.up();
+                if(up.equals(destinationCell)){
+                    resolveCellTrace(cell, path, cellOperation.of(source.getLeft(), source.getRight()));
                     return path;
                 }
                 neighbor.add(up);
             }
-            if (canBeTheNextStepOfPath(sell.left(),source)){
-                Sell left = sell.left();
-                if(left.equals(destinationSell)){
-                    resolveSellTrace(sell, path, sellOperation.of(source.getLeft(), source.getRight()));
+            if (canBeTheNextStepOfPath(cell.left(),source)){
+                Cell left = cell.left();
+                if(left.equals(destinationCell)){
+                    resolveCellTrace(cell, path, cellOperation.of(source.getLeft(), source.getRight()));
                     return path;
                 }
                 neighbor.add(left);
             }
-            if (canBeTheNextStepOfPath(sell.down(),source)){
-                Sell down = sell.down();
-                if(down.equals(destinationSell)){
-                    resolveSellTrace(sell, path, sellOperation.of(source.getLeft(), source.getRight()));
+            if (canBeTheNextStepOfPath(cell.down(),source)){
+                Cell down = cell.down();
+                if(down.equals(destinationCell)){
+                    resolveCellTrace(cell, path, cellOperation.of(source.getLeft(), source.getRight()));
                     return path;
                 }
                 neighbor.add(down);
             }
         }
-        return getShortestPathInSells(step, path, neighbor,destination,source);
+        return getShortestPathInCells(step, path, neighbor,destination,source);
     }
 
-    private void resolveSellTrace(Sell sell, HashSet<Sell> trace,Sell source){
+    private void resolveCellTrace(Cell cell, HashSet<Cell> trace,Cell source){
         if(trace.isEmpty()){
-            trace.add(sell);
+            trace.add(cell);
         }
-        int dest = sell.distanceFromSource;
-        if(canBeThePreviousStepOfPath(sell.up(),dest)){
-            if(sell.up().equals(source)){
+        int dest = cell.distanceFromSource;
+        if(canBeThePreviousStepOfPath(cell.up(),dest)){
+            if(cell.up().equals(source)){
                 return;
             }
-            trace.add(sell.up());
-            resolveSellTrace(sell.up(),trace,source);
-        }else if(canBeThePreviousStepOfPath(sell.down(),dest)){
-            if(sell.down().equals(source)){
+            trace.add(cell.up());
+            resolveCellTrace(cell.up(),trace,source);
+        }else if(canBeThePreviousStepOfPath(cell.down(),dest)){
+            if(cell.down().equals(source)){
                 return;
             }
-            trace.add(sell.down());
-            resolveSellTrace(sell.down(),trace,source);
-        }else if(canBeThePreviousStepOfPath(sell.right(),dest)){
-            if(sell.right().equals(source)){
+            trace.add(cell.down());
+            resolveCellTrace(cell.down(),trace,source);
+        }else if(canBeThePreviousStepOfPath(cell.right(),dest)){
+            if(cell.right().equals(source)){
                 return;
             }
-            trace.add(sell.right());
-            resolveSellTrace(sell.right(),trace,source);
-        }else if(canBeThePreviousStepOfPath(sell.left(),dest)){
-            if(sell.left().equals(source)){
+            trace.add(cell.right());
+            resolveCellTrace(cell.right(),trace,source);
+        }else if(canBeThePreviousStepOfPath(cell.left(),dest)){
+            if(cell.left().equals(source)){
                 return;
             }
-            trace.add(sell.left());
-            resolveSellTrace(sell.left(),trace,source);
-        }
-
-
-    }
-
-    private boolean canBeThePreviousStepOfPath(Sell sell, int dest){
-        return sell != null && !disabledSells.contains(sell) && sell.distanceFromSource - dest == -1;
-    }
-
-    private boolean canBeTheNextStepOfPath(Sell sell,Pair<Integer,Integer> source){
-        return  sell != null
-                && !disabledSells.contains(sell)
-                && !sell.equals(new Sell().of(source.getLeft(),source.getRight()))
-                && sell.distanceFromSource == 0;
-    }
-
-    private void resolveDistancesOfSells(int distance,Set<Sell> sells){
-        for(Sell sell: sells){
-            sell.setDistance(sell.coordinate.getLeft(), sell.coordinate.getRight(),distance);
+            trace.add(cell.left());
+            resolveCellTrace(cell.left(),trace,source);
         }
 
+
     }
 
-    Sell sell(Pair<Integer, Integer> pair){
-        return new Sell().of(pair.getLeft(), pair.getRight());
+    private boolean canBeThePreviousStepOfPath(Cell cell, int dest){
+        return cell != null && !disabledCells.contains(cell) && cell.distanceFromSource - dest == -1;
+    }
+
+    private boolean canBeTheNextStepOfPath(Cell cell,Pair<Integer,Integer> source){
+        return  cell != null
+                && !disabledCells.contains(cell)
+                && !cell.equals(new Cell().of(source.getLeft(),source.getRight()))
+                && cell.distanceFromSource == 0;
+    }
+
+    private void resolveDistancesOfCells(int distance,Set<Cell> cells){
+        for(Cell cell: cells){
+            cell.setDistance(cell.coordinate.getLeft(), cell.coordinate.getRight(),distance);
+        }
+
+    }
+
+    Cell cell(Pair<Integer, Integer> pair){
+        return new Cell().of(pair.getLeft(), pair.getRight());
     }
 
 
-    class Sell{
+    class Cell{
         private Pair<Integer, Integer> coordinate;
         private int distanceFromSource = 0;
 
-        Sell of(Integer left, Integer right){
+        Cell of(Integer left, Integer right){
             return matrix.get(left).get(right);
         }
 
@@ -175,11 +175,11 @@ public class Matrix {
             of(left,right).distanceFromSource = dist;
         }
 
-        Sell(Pair<Integer, Integer> coordinate) {
+        Cell(Pair<Integer, Integer> coordinate) {
             this.coordinate = coordinate;
         }
 
-        Sell(){}
+        Cell(){}
 
 
         Pair<Integer, Integer> getCoordinate() {
@@ -189,9 +189,9 @@ public class Matrix {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof Sell)) return false;
-            Sell sell = (Sell) o;
-            return getCoordinate().equals(sell.getCoordinate());
+            if (!(o instanceof Cell)) return false;
+            Cell cell = (Cell) o;
+            return getCoordinate().equals(cell.getCoordinate());
         }
 
         @Override
@@ -201,31 +201,31 @@ public class Matrix {
 
         @Override
         public String toString() {
-            return "Sell{" +
+            return "Cell{" +
                     "coordinate=" + coordinate +
                     ", distanceFromSource=" + distanceFromSource +
                     '}';
         }
 
-        Sell up(){
+        Cell up(){
             return getCoordinate().getRight() != width - 1 ?
                     of(getCoordinate().getLeft(), getCoordinate().getRight() + 1)
                     : null;
         }
 
-        Sell down(){
+        Cell down(){
              return getCoordinate().getRight() != 0 ?
                      of(getCoordinate().getLeft(), getCoordinate().getRight() - 1)
                      : null;
         }
 
-        Sell left(){
+        Cell left(){
             return getCoordinate().getLeft() != 0 ?
                     of(getCoordinate().getLeft() - 1, getCoordinate().getRight())
                     : null;
         }
 
-        Sell right(){
+        Cell right(){
             return getCoordinate().getLeft() != length - 1 ?
                     of(getCoordinate().getLeft() + 1, getCoordinate().getRight())
                     : null;
